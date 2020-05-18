@@ -70,7 +70,7 @@ def dropNonInformative(dataset=None):
     It returns a dataset without features that does not provide any 
     interesting information... It also removes some 
     
-    .. admonition:: Notice
+    .. note::
 
       Notice that the dataset description has only 25 fields, but
       the table has 29 features... Probably some of those does not 
@@ -104,14 +104,14 @@ def balanceDataSet(phi, y):
     and will return a balanced dataset with randomized samples by
     considering the True label of the output as a reference. If 
     one wants to use the False label as reference, it is just 
-    necessary to pass the ~ version of the output.
+    necessary to pass the version of the output.
     
     The balanced database means a database with 50% of true targets,
     and 50% of false targets. This is interesting to remove bias of 
     upper/lower cut learning of the models.
 
-    :param numpy.ndarray phi: The regressor matrix
-    :param numpy.ndarray y: The targets vector
+    :param numpy.ndarray phi: The regressor matrix.
+    :param numpy.ndarray y: The targets vector.
 
     :return: The new regression model => (phi, target)
     :rtype: tuple
