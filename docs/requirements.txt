@@ -1,1 +1,11 @@
 sphinxemoji
+sphinx-copybutton>=0.2
+nbsphinx>=0.5
+pandas>=1.0
+matplotlib>=3.2
+seaborn
+xgboost
+ruamel.yaml
+ipywidgets
+ipython
+bokeh
