@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>XGBoost Classifier &mdash; iFood Interview Project</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/iFoodLogo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
+        <script src="_static/twemoji.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="_static/twemoji.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deep Networks" href="Deep Networks.html" />
+    <link rel="prev" title="iFood Interview Project" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> iFoodProject
+          
+
+          
+            
+            <img src="_static/EuMesmo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Practical Classifier:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">XGBoost Classifier</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Reading-the-DataSet">Reading the DataSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Preprocessing">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Pipeline">Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Test-and-Train-data">Test and Train data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Hyper-parameters">Hyper parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Train-model">Train model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Model-Results">Model Results</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Other Classifiers:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Deep Networks.html">Deep Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support Vector Machines.html">Support Vector Machine</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Poor attempts:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Kohonen Maps.html">Kohonen Maps</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Docs - APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">iFoodProject</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>XGBoost Classifier</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/XGBoost Simple Classifier.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    min-width: 5ex;
+    padding-top: 0.3rem;
+    padding-right: 0.3rem;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 0.3rem;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="XGBoost-Classifier">
+<h1>XGBoost Classifier<a class="headerlink" href="#XGBoost-Classifier" title="Permalink to this headline">¶</a></h1>
+<p>In this section we will use the soo called XGBoost library to build a classifier, to use the costumer information to predict the probable costumer to comply in the next marketing campaing. This algorithm was chosen, considering its high performance on both computational and accuracy manners.</p>
+<div class="section" id="Reading-the-DataSet">
+<h2>Reading the DataSet<a class="headerlink" href="#Reading-the-DataSet" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="s1">&#39;./ifood-data-business-analyst-test/ml_project1_data.csv&#39;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#Preprocessing" title="Permalink to this headline">¶</a></h2>
+<p>Here we need to provide a simple preprocess to the data to remove possible non informative data, to create information fields that are more suitable for interpretation, some encoding of the features (since some are categorical), also we will make some normalization on the data to avoid over weighting errors and so on…</p>
+<blockquote>
+<div><p>Notice that most functions to do the preprocessing here are implemented in a separated code, since it could be used for other models, and for later analysis.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Pipeline">
+<h3>Pipeline<a class="headerlink" href="#Pipeline" title="Permalink to this headline">¶</a></h3>
+<p>The preprocessing pipeline, for the XGBoost classification algorithm will be the one, as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">#1</span></code> First we will replace some fields with more interpretable information (Birth date =&gt; Age, Customer Registration =&gt; Persistence, …)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">#2</span></code> Then we are going to replace the categorical data set with an encoded one (categorical variables =&gt; numerical variables)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">#3</span></code> Then some non informative features will be dropped from the analysis, <em>e.g.</em> features that are constant in all samples (which does not provide any information)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">#4</span></code> Since we have only 24 samples with NaN (or null) values, we can drop those from the dataset, instead of concerning with interpolation and so on…</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">replaceFields</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>             <span class="c1"># Step #1</span>
+
+<span class="n">dataset</span><span class="p">,</span> <span class="n">encoders</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">encodeDataSet</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>   <span class="c1"># Step #2</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">dropNonInformative</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>        <span class="c1"># Step #3</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>                                <span class="c1"># Step #4</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Features dropped: [&#39;Z_CostContact&#39;, &#39;Z_Revenue&#39;]
+</pre></div></div>
+</div>
+<p>Here we have some particular processing of the data for this particular XGBoost classifier algorithm. Notice that the dataset is not balanced between <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code> on the output… Actually it is a proportion close to 10% of <code class="docutils literal notranslate"><span class="pre">1</span></code>/<code class="docutils literal notranslate"><span class="pre">0</span></code>. Therefore, something must be done to deal with the unbalanced dataset. Here we are not doing a simple error weighting using the output data proportions… We will use a randomized sample technique, the reason is:</p>
+<blockquote>
+<div><p><em>Without knowing depply the fenomenom, a simple approach of just weighting the error proportionally can be very dangerous, even though it is more straightforward. The reason behind this is related to the fact that you are only weighting the data based on the variance of the output feature, and it is not considering how that weighting will behave on the other features variances. If this breaf explanation did not trigger something that made you undestand the idea, please check out my book
+at</em><a class="reference external" href="https://digital-library.theiet.org/content/books/10.1049/pbce123e_ch3;jsessionid=ji7b4180pudn.x-iet-live-01">IET Digital Library</a><em>where I explain in details every math behind this resolution.</em></p>
+</div></blockquote>
+<p>In summary, we will first build the regression problem (yes!! For mathematicians the classification is a binary regression problem… It is common sense to say that regression, is when one wants to fit a curve to the data, that is actually a linear regression) as something close to the structure:</p>
+<div class="math notranslate nohighlight">
+\[y(k) = f(\phi(k), \theta)\]</div>
+<p>After we can normalize the data, by just making it fit the the group <span class="math notranslate nohighlight">\([0, 1]\)</span>. Notice that we do not want to normalize the variance of each feature… Since the eventual birth of the deep searching algorithms, where most of them use stochastic searching algorithms (simillar to the old annealing, brunch and bound …), the noramlization of the variance usually removes some scotachastic properties (in a commom sense, removes some part of the randomicity pattern) of the feature.</p>
+<p>Therefore, after normalizing we will balance the data accordenlly with the description provided before by randomly selecting variables to make shure that we have 50% <code class="docutils literal notranslate"><span class="pre">1</span></code>s and 50% <code class="docutils literal notranslate"><span class="pre">0</span></code>s. Of course this will reduce the dataset, but one will see that with stochastic search algorithms, such as the one used by XGBoost, there will not compromise the results.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Creating the regression format</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Response&#39;</span><span class="p">,</span> <span class="s1">&#39;ID&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="c1"># Normalization</span>
+<span class="n">max_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">min_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">phi_n</span> <span class="o">=</span> <span class="p">(</span><span class="n">phi</span> <span class="o">-</span> <span class="n">max_vals</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_vals</span> <span class="o">-</span> <span class="n">min_vals</span><span class="p">)</span>
+
+<span class="c1"># Balancing the data</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">balanceDataSet</span><span class="p">(</span><span class="n">phi_n</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Test-and-Train-data">
+<h3>Test and Train data<a class="headerlink" href="#Test-and-Train-data" title="Permalink to this headline">¶</a></h3>
+<p>Here we have a simple segregation of the preprocessed dataset into train and test.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Hyper-parameters">
+<h2>Hyper parameters<a class="headerlink" href="#Hyper-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Here we will tune the model hyper parameters using a particular algorithm that I usually enjoy, the annealing search. This algorithm actually uses a stochastic search (random search) based on the information entropy of the data, and is actually a global optimization algorithm. This means that it does not use derivatives to search for the optimum set of hyper parameters, it actually is something of a grid search where at each iteration the next set of hyper parameters are not defined by a grid
+relation, but actually by its randomicity probability of encreasing the information (entropy) of the error of the function that it wants to minimize. And believe it or not, it always finds the optimum set inside the provided restrictions. It is pretty cool!!</p>
+<p>So to use it, we must define some bounderies for the parameters that we want to search, a cost function, that here it is the sum of the false positives (since we want to minimize this in the predictions). Then we just need to pass to the algorithm and wait to search for the best parameter set.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="c1"># Creating the parameters bounderies</span>
+<span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
+
+<span class="c1"># Run the annealing searching</span>
+<span class="n">pars</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">xgbHyperGridSearch</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">X_test</span><span class="p">))</span>
+<span class="n">res</span> <span class="c1"># print the annealing search summary</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+     fun: 0.29428381522100366
+ message: [&#39;Maximum number of iteration reached&#39;]
+    nfev: 12666
+    nhev: 0
+     nit: 2000
+    njev: 0
+  status: 0
+ success: True
+       x: array([4.07016452, 1.26624072, 0.70430411])
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Train-model">
+<h2>Train model<a class="headerlink" href="#Train-model" title="Permalink to this headline">¶</a></h2>
+<p>Then we can use the parameters found to create the best XGBoost model classifier…</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+<span class="c1"># Create the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">pars</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_child_weight</span><span class="o">=</span><span class="n">pars</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">pars</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="c1"># Train the model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+          <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)],</span>
+          <span class="n">eval_metric</span><span class="o">=</span><span class="s1">&#39;logloss&#39;</span><span class="p">,</span>
+          <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+XGBClassifier(base_score=0.5, booster=None, colsample_bylevel=1,
+              colsample_bynode=1, colsample_bytree=1, gamma=0.7043041138126915,
+              gpu_id=-1, importance_type=&#39;gain&#39;, interaction_constraints=None,
+              learning_rate=0.300000012, max_delta_step=0, max_depth=4,
+              min_child_weight=1, missing=nan, monotone_constraints=None,
+              n_estimators=100, n_jobs=0, num_parallel_tree=1,
+              objective=&#39;binary:logistic&#39;, random_state=0, reg_alpha=0,
+              reg_lambda=1, scale_pos_weight=1, subsample=1, tree_method=None,
+              validate_parameters=False, verbosity=None)
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Model-Results">
+<h2>Model Results<a class="headerlink" href="#Model-Results" title="Permalink to this headline">¶</a></h2>
+<p>Then here we can build some visualizations to show the results. The first one is the fitting with the testing data, using the confusion matrix to make sure the model is consistent.</p>
+<blockquote>
+<div><p>Remember that this data set is balanced, and therefore is a more honnest result, then the second one that will be shown.</p>
+</div></blockquote>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">conf_mat</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">)</span>
+
+<span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;False&#39;</span><span class="p">,</span><span class="s1">&#39;True&#39;</span><span class="p">]</span>
+<span class="n">cm_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">conf_mat</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cm_df</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.axes._subplots.AxesSubplot at 0x1a22df4e10&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/XGBoost_Simple_Classifier_16_1.png" src="_images/XGBoost_Simple_Classifier_16_1.png" />
+</div>
+</div>
+<p>Here we can show the classification performance of the unbalaced dataset, using all samples, to be sure that the model maintain its consistency.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">phi_n</span><span class="p">)</span>
+<span class="n">conf_mat</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">)</span>
+
+<span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;False&#39;</span><span class="p">,</span><span class="s1">&#39;True&#39;</span><span class="p">]</span>
+<span class="n">cm_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">conf_mat</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cm_df</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.axes._subplots.AxesSubplot at 0x1a253d8210&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/XGBoost_Simple_Classifier_18_1.png" src="_images/XGBoost_Simple_Classifier_18_1.png" />
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Deep Networks.html" class="btn btn-neutral float-right" title="Deep Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="iFood Interview Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Marcelo Lima
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

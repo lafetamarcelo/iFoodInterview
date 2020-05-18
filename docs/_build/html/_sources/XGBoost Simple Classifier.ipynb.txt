@@ -1,0 +1,370 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# XGBoost Classifier\n",
+    "\n",
+    "\n",
+    "In this section we will use the soo called XGBoost library to build a classifier, to use the costumer information to predict the probable costumer to comply in the next marketing campaing. This algorithm was chosen, considering its high performance on both computational and accuracy manners."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Reading the DataSet"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "import pandas as pd\n",
+    "\n",
+    "data_path = './ifood-data-business-analyst-test/ml_project1_data.csv'\n",
+    "dataset = pd.read_csv(data_path)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Preprocessing \n",
+    "\n",
+    "Here we need to provide a simple preprocess to the data to remove possible non informative data, to create information fields that are more suitable for interpretation, some encoding of the features (since some are categorical), also we will make some normalization on the data to avoid over weighting errors and so on... \n",
+    "\n",
+    "> Notice that most functions to do the preprocessing here are implemented in a separated code, since it could be used for other models, and for later analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from utils import *"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Pipeline\n",
+    "\n",
+    "The preprocessing pipeline, for the XGBoost classification algorithm will be the one, as follows:\n",
+    "\n",
+    "- `Step #1` First we will replace some fields with more interpretable information (Birth date => Age, Customer Registration => Persistence, ...)\n",
+    "\n",
+    "- `Step #2` Then we are going to replace the categorical data set with an encoded one (categorical variables => numerical variables)\n",
+    "\n",
+    "- `Step #3` Then some non informative features will be dropped from the analysis, _e.g._ features that are constant in all samples (which does not provide any information)\n",
+    "\n",
+    "- `Step #4` Since we have only 24 samples with NaN (or null) values, we can drop those from the dataset, instead of concerning with interpolation and so on..."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Features dropped: ['Z_CostContact', 'Z_Revenue']\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "dataset = support.replaceFields(dataset)             # Step #1\n",
+    "\n",
+    "dataset, encoders = support.encodeDataSet(dataset)   # Step #2\n",
+    "\n",
+    "dataset = support.dropNonInformative(dataset)        # Step #3\n",
+    "\n",
+    "df = dataset.dropna()                                # Step #4\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Here we have some particular processing of the data for this particular XGBoost classifier algorithm. Notice that the dataset is not balanced between `1` and `0` on the output... Actually it is a proportion close to 10% of `1`/`0`. Therefore, something must be done to deal with the unbalanced dataset. Here we are not doing a simple error weighting using the output data proportions... We will use a randomized sample technique, the reason is:\n",
+    "\n",
+    "> _Without knowing depply the fenomenom, a simple approach of just weighting the error proportionally can be very dangerous, even though it is more straightforward. The reason behind this is related to the fact that you are only weighting the data based on the variance of the output feature, and it is not considering how that weighting will behave on the other features variances. If this breaf explanation did not trigger something that made you undestand the idea, please check out my book at [IET Digital Library](https://digital-library.theiet.org/content/books/10.1049/pbce123e_ch3;jsessionid=ji7b4180pudn.x-iet-live-01) where I explain in details every math behind this resolution._\n",
+    "\n",
+    "In summary, we will first build the regression problem (yes!! For mathematicians the classification is a binary regression problem... It is common sense to say that regression, is when one wants to fit a curve to the data, that is actually a linear regression) as something close to the structure:\n",
+    "\n",
+    "$$y(k) = f(\\phi(k), \\theta)$$\n",
+    "\n",
+    "After we can normalize the data, by just making it fit the the group $[0, 1]$. Notice that we do not want to normalize the variance of each feature... Since the eventual birth of the deep searching algorithms, where most of them use stochastic searching algorithms (simillar to the old annealing, brunch and bound ...), the noramlization of the variance usually removes some scotachastic properties (in a commom sense, removes some part of the randomicity pattern) of the feature. \n",
+    "\n",
+    "Therefore, after normalizing we will balance the data accordenlly with the description provided before by randomly selecting variables to make shure that we have 50% `1`s and 50% `0`s. Of course this will reduce the dataset, but one will see that with stochastic search algorithms, such as the one used by XGBoost, there will not compromise the results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "import numpy as np\n",
+    "\n",
+    "# Creating the regression format\n",
+    "phi = df.loc[:, ~df.columns.isin(['Response', 'ID'])].to_numpy()\n",
+    "target = df[\"Response\"].to_numpy()\n",
+    "\n",
+    "# Normalization\n",
+    "max_vals = np.amax(phi, axis=0)\n",
+    "min_vals = np.amin(phi, axis=0)\n",
+    "phi_n = (phi - max_vals) / (max_vals - min_vals)\n",
+    "\n",
+    "# Balancing the data\n",
+    "X, y = support.balanceDataSet(phi_n, target)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Test and Train data\n",
+    "\n",
+    "Here we have a simple segregation of the preprocessed dataset into train and test."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42, shuffle=True)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Hyper parameters\n",
+    "\n",
+    "Here we will tune the model hyper parameters using a particular algorithm that I usually enjoy, the annealing search. This algorithm actually uses a stochastic search (random search) based on the information entropy of the data, and is actually a global optimization algorithm. This means that it does not use derivatives to search for the optimum set of hyper parameters, it actually is something of a grid search where at each iteration the next set of hyper parameters are not defined by a grid relation, but actually by its randomicity probability of encreasing the information (entropy) of the error of the function that it wants to minimize. And believe it or not, it always finds the optimum set inside the provided restrictions. It is pretty cool!!\n",
+    "\n",
+    "So to use it, we must define some bounderies for the parameters that we want to search, a cost function, that here it is the sum of the false positives (since we want to minimize this in the predictions). Then we just need to pass to the algorithm and wait to search for the best parameter set."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "     fun: 0.29428381522100366\n",
+       " message: ['Maximum number of iteration reached']\n",
+       "    nfev: 12666\n",
+       "    nhev: 0\n",
+       "     nit: 2000\n",
+       "    njev: 0\n",
+       "  status: 0\n",
+       " success: True\n",
+       "       x: array([4.07016452, 1.26624072, 0.70430411])"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\n",
+    "# Creating the parameters bounderies\n",
+    "lower, upper = [1, 1, 0.01], [25, 25, 15]\n",
+    "bounds = zip(lower, upper)\n",
+    "\n",
+    "# Run the annealing searching \n",
+    "pars, res = support.xgbHyperGridSearch(bounds, (y_train, X_train, y_test, X_test))\n",
+    "res # print the annealing search summary\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Train model\n",
+    "\n",
+    "Then we can use the parameters found to create the best XGBoost model classifier..."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "XGBClassifier(base_score=0.5, booster=None, colsample_bylevel=1,\n",
+       "              colsample_bynode=1, colsample_bytree=1, gamma=0.7043041138126915,\n",
+       "              gpu_id=-1, importance_type='gain', interaction_constraints=None,\n",
+       "              learning_rate=0.300000012, max_delta_step=0, max_depth=4,\n",
+       "              min_child_weight=1, missing=nan, monotone_constraints=None,\n",
+       "              n_estimators=100, n_jobs=0, num_parallel_tree=1,\n",
+       "              objective='binary:logistic', random_state=0, reg_alpha=0,\n",
+       "              reg_lambda=1, scale_pos_weight=1, subsample=1, tree_method=None,\n",
+       "              validate_parameters=False, verbosity=None)"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\n",
+    "import xgboost as xgb\n",
+    "\n",
+    "# Create the model\n",
+    "model = xgb.XGBClassifier(max_depth=pars[0], min_child_weight=pars[1], gamma=pars[2])\n",
+    "# Train the model\n",
+    "model.fit(X_train, y_train,\n",
+    "          eval_set=[(X_train, y_train), (X_test, y_test)],\n",
+    "          eval_metric='logloss', \n",
+    "          verbose=False)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Model Results\n",
+    "\n",
+    "Then here we can build some visualizations to show the results. The first one is the fitting with the testing data, using the confusion matrix to make sure the model is consistent. \n",
+    "\n",
+    "> Remember that this data set is balanced, and therefore is a more honnest result, then the second one that will be shown."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<matplotlib.axes._subplots.AxesSubplot at 0x1a22df4e10>"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 720x432 with 2 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.metrics import confusion_matrix\n",
+    "\n",
+    "y_pred = model.predict(X_test)\n",
+    "conf_mat = confusion_matrix(y_test, y_pred, normalize='true')\n",
+    "\n",
+    "index = ['False','True']  \n",
+    "cm_df = pd.DataFrame(conf_mat,index,index)                      \n",
+    "\n",
+    "plt.figure(figsize=(10,6))  \n",
+    "sns.heatmap(cm_df, annot=True)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Here we can show the classification performance of the unbalaced dataset, using all samples, to be sure that the model maintain its consistency."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<matplotlib.axes._subplots.AxesSubplot at 0x1a253d8210>"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 720x432 with 2 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "y_pred = model.predict(phi_n)\n",
+    "conf_mat = confusion_matrix(target, y_pred, normalize='true')\n",
+    "\n",
+    "index = ['False','True']  \n",
+    "cm_df = pd.DataFrame(conf_mat,index,index)                      \n",
+    "\n",
+    "plt.figure(figsize=(10,6))  \n",
+    "sns.heatmap(cm_df, annot=True)\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
