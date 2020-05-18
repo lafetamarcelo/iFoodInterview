@@ -22,8 +22,8 @@ def replaceFields(dataset=None):
     with ones that are more suitable considering the analysis 
     porpuse, such as: 
     
-      - Birth Year => Age in years (int)
-      - Dt Customer => Persistance in months (int)
+    * Birth Year => Age in years (int)
+    * Dt Customer => Persistance in months (int)
     
     :param pandas.DataFrame dataset: The dataset table as dataframe
 
